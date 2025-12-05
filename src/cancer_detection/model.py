@@ -1,4 +1,9 @@
 import os
+
+# quiet tensorflow logs for demo
+# set to 0 for clues if TF isnt working
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import joblib
 import numpy as np
 
