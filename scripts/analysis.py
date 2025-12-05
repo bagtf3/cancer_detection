@@ -38,6 +38,7 @@ def detect_models(df):
                 models.append(name)
     return models
 
+
 def print_confusion(name, y_true, preds):
     """ print a tiny binary confusion matrix """
     cm = confusion_matrix(y_true, preds)

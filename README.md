@@ -98,7 +98,7 @@ You should see
 
 ## 4) Run analysis and save plots
 
-Produce simple validation plots (ROC, PR, probability histograms) and a combined ROC; prints a compact confusion matrix per model.
+Produce simple validation plots (ROC, PR, probability histograms) and a combined ROC.
 
 ```bash
 python analysis.py --pred_file ../results/combined_predictions.csv --save_dir ../results
