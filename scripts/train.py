@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
 from cancer_detection.model import get_model
+from cancer_detection.utils import load_config, write_json
 
 
 def parse_args():
@@ -24,16 +25,6 @@ def parse_args():
     
     return p.parse_args()
 
-
-def load_config(path):
-    with open(path, "r") as fh:
-        return json.load(fh)
-
-
-def write_json(path, obj):
-    with open(path, "w") as fh:
-        json.dump(obj, fh, indent=2)
-        
 
 def prepare_data(input_file, cfg):
     df = pd.read_csv(input_file)
@@ -57,7 +48,6 @@ def prepare_data(input_file, cfg):
     return df, X, y, features
 
 
-
 def train_one(name, model_obj, model_cfg, X_train, y_train, X_val, y_val, out_dir):
     print(f"[train] -> {name}")
 
@@ -76,6 +66,7 @@ def train_one(name, model_obj, model_cfg, X_train, y_train, X_val, y_val, out_di
     probs = model_obj.predict_proba(X_val)
     preds = model_obj.predict(X_val)
 
+    # basic training metrics
     acc = metrics.accuracy_score(y_val, preds)
     f1 = metrics.f1_score(y_val, preds)
     auc = metrics.roc_auc_score(y_val, probs)
@@ -89,7 +80,6 @@ def train_one(name, model_obj, model_cfg, X_train, y_train, X_val, y_val, out_di
     os.makedirs(model_path, exist_ok=True)     
     model_obj.save(model_path)
     print(f"[train] saved model -> {model_path}")
-
 
     # write predictions
     preds_df = pd.DataFrame({"true": y_val, "pred": preds, "prob": probs})
@@ -108,7 +98,7 @@ def main():
     cfg = load_config(args.config_file)
 
     os.makedirs(args.results_dir, exist_ok=True)
-    # concrete assumption: config is valid JSON and contains required keys
+    # config contains meta info for model(s) and data
     df, X, y, features = prepare_data(args.input_file, cfg)
 
     test_size = cfg.get("test_size", 0.2)
@@ -124,14 +114,17 @@ def main():
     model_configs = cfg.get("models", {})
 
     for m in models_list:
+        # find the matching config for this model
         model_cfg = model_configs.get(m, {}) if isinstance(model_configs, dict) else {}
         print(f"[train] building model '{m}' with cfg: {model_cfg}")
 
+        # returns an unbuilt model
         model_obj = get_model(m, **model_cfg)
 
         out_dir = os.path.join(args.results_dir, m)
         os.makedirs(out_dir, exist_ok=True)
 
+        # builds the model with the config and input data, trains, saves
         train_one(m, model_obj, model_cfg, X_train, y_train, X_val, y_val, out_dir)
 
     print("[train] done. results in", args.results_dir)

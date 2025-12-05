@@ -10,13 +10,6 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 
 
-# helper
-def to_array(X):
-    if hasattr(X, "values"):
-        return X.values
-    return np.asarray(X)
-
-
 class RFModel:
     """
     thin RF adapter. Underlying sklearn pipeline is created on
