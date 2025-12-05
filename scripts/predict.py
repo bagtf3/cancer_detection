@@ -91,6 +91,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-python predict.py --model_dir ../results --models rf,nn --input_file ../data/cancer_data_train.csv --config ../configs/config_simple.json --out_csv ../results/combined_predictions.csv

@@ -1,6 +1,17 @@
-#!/usr/bin/env python3
+"""
+Minimal multi model predictor
+Loads models from model_dir/<name> and predicts using features from config
+Writes one CSV with pred_<model> and prob_<model>
+
+Usage:
+  python predict.py --model_dir ../results --models rf,nn \
+    --input_file ../data/cancer_data_train.csv \
+    --config ../configs/config_simple.json \
+    --out_csv ../results/combined_predictions.csv
+"""
+
+
 import os
-import json
 import argparse
 
 import numpy as np
@@ -18,11 +29,9 @@ def parse_args():
         "--models", required=True,
         help="comma-separated list of models to train, e.g. rf,nn"
     )
-    
     p.add_argument("--input_file", required=True, help="path to csv input data")
     p.add_argument("--config_file", required=True, help="path to JSON config")
     p.add_argument("--results_dir", required=True, help="directory to write outputs")
-    
     return p.parse_args()
 
 
@@ -74,14 +83,13 @@ def train_one(name, model_obj, model_cfg, X_train, y_train, X_val, y_val, out_di
     metrics_obj = {"accuracy": acc, "f1": f1, "auc": auc}
     print(f"[metrics] {name} acc={acc:.4f} f1={f1:.4f} auc={auc:.4f}")
 
-    # save model (adapter decides how it stores)
-    model_path = os.path.join(out_dir, name)
+    # save model flatly into out_dir (no extra nested subdir)
+    # out_dir already is .../results/<name>
     os.makedirs(out_dir, exist_ok=True)
-    os.makedirs(model_path, exist_ok=True)     
-    model_obj.save(model_path)
-    print(f"[train] saved model -> {model_path}")
+    model_obj.save(out_dir)
+    print(f"[train] saved model -> {out_dir}")
 
-    # write predictions
+    # write predictions (still flat under out_dir)
     preds_df = pd.DataFrame({"true": y_val, "pred": preds, "prob": probs})
     preds_csv = os.path.join(out_dir, f"{name}_val_predictions.csv")
     preds_df.to_csv(preds_csv, index=False)
@@ -108,7 +116,7 @@ def main():
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=stratify
     )
-    
+
     print(f"[train] data split train={len(X_train)} val={len(X_val)} feats={features}")
 
     model_configs = cfg.get("models", {})
