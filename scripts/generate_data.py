@@ -102,8 +102,6 @@ def main():
         print(f"  {name}: {val}")
     
     df = generate_generative_demo(n=args.n, seed=args.seed, p_cancer=args.p_cancer)
-    file_name = args.out
-    
     df.to_csv(args.out, index=False)
     print(f"{DG} complete")
 

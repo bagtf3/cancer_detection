@@ -1,0 +1,25 @@
+{
+  "features": [
+    "gleason_score",
+    "methylation_entropy",
+    "age",
+    "bmi"
+  ],
+  "target": "cancer_status",
+  "test_size": 0.2,
+  "random_state": 42,
+  "models": {
+    "rf": {
+      "n_estimators": 200,
+      "random_state": 42
+    },
+    "nn": {
+      "hidden_units": [32, 16],
+      "dropout": 0.1,
+      "epochs": 20,
+      "batch_size": 32,
+      "validation_split": 0.1,
+      "verbose": 0
+    }
+  }
+}
