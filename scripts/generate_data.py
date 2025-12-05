@@ -2,9 +2,6 @@ import numpy as np
 import pandas as pd
 import argparse
 
-# for prints
-DG = "[data gen]"
-
 
 def generate_generative_demo(n=194, seed=0, p_cancer=0.45):
     """
@@ -18,7 +15,7 @@ def generate_generative_demo(n=194, seed=0, p_cancer=0.45):
     gleason_levels = np.array([6, 7, 8, 9, 10])
     
     # mock probabilities for Gleason among cancers
-    gleason_probs = np.array([0.25, 0.45, 0.20, 0.08, 0.02])
+    gleason_probs = np.array([0.23, 0.30, 0.26, 0.16, 0.05])
 
     # entropy drawn from clipped normal with mean/sd by gleason
     entropy_means = {
@@ -27,8 +24,8 @@ def generate_generative_demo(n=194, seed=0, p_cancer=0.45):
     }
     
     entropy_sds = {
-        0: 0.02, 6: 0.03, 7: 0.035,
-        8: 0.05, 9: 0.06, 10: 0.07
+        0: 0.04, 6: 0.05, 7: 0.07,
+        8: 0.08, 9: 0.10, 10: 0.12
     }
     
     # age and BMI means. will increment with gleason to give slight covar
@@ -96,14 +93,14 @@ def parse_args():
 def main():
     args = parse_args()
     
-    print(f"{DG} Generating demo dataset")
+    print("[data gen] Generating demo dataset")
     print("Arguments:")
     for name, val in vars(args).items():
         print(f"  {name}: {val}")
     
     df = generate_generative_demo(n=args.n, seed=args.seed, p_cancer=args.p_cancer)
     df.to_csv(args.out, index=False)
-    print(f"{DG} complete")
+    print("[data gen] complete")
 
 
 if __name__ == "__main__":
